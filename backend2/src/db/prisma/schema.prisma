@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  username     String?      @unique
+  name         String?
+  email        String       @unique
+  provider     AuthProvider
+  password     String?
+  gamesAsWhite Game[]       @relation("WhiteGames")
+  gamesAsBlack Game[]       @relation("BlackGames")
+
+  createdAt DateTime  @default(now())
+  lastLogin DateTime?
+}
+
+model Game {
+  id            String      @id @default(cuid())
+  whitePlayerId String
+  blackPlayerId String
+  whitePlayer   User        @relation("WhiteGames", fields: [whitePlayerId], references: [id])
+  blackPlayer   User        @relation("BlackGames", fields: [blackPlayerId], references: [id])
+  status        GameStatus
+  result        GameResult?
+  startingFen   String      @default("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+  currentFen    String?
+  moves         Move[]
+  startAt       DateTime    @default(now())
+  endAt         DateTime?
+}
+
+model Move {
+  id         String   @id @default(cuid())
+  gameId     String
+  game       Game     @relation(fields: [gameId], references: [id])
+  moveNumber Int
+  from       String
+  to         String
+  piece      String
+  before     String
+  after      String
+  timeTaken  Int?     @default(0)
+  captured   String?
+  promotion  String?
+  createdAt  DateTime @default(now())
+  san        String?
+
+  @@index([gameId])
+}
+
+enum GameResult {
+  WIN
+  DRAW
+  LOSS
+}
+
+enum GameStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+  TIMEOUT
+  PLAYER_EXIT
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  GITHUB
+  GUEST
+}
