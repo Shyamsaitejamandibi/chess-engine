@@ -5,7 +5,6 @@ import LegalMoveIndicator from "./chess-board/LegalMoveIndicator";
 import ChessSquare from "./chess-board/ChessSquare";
 import NumberNotation from "./chess-board/NumberNotation";
 import { drawArrow } from "../utils/canvas";
-import Confetti from "react-confetti";
 import { useChessStore } from "@/hooks/chessBoard";
 import { MOVE } from "@/app/game/[gameId]/page";
 
@@ -187,6 +186,7 @@ export const ChessBoard = memo(
         setBoard(chess.board());
         return;
       }
+      setBoard(chess.board());
     }, [chess, moves, setBoard, userSelectedMoveIndex]);
 
     useEffect(() => {
@@ -210,7 +210,6 @@ export const ChessBoard = memo(
 
     return (
       <>
-        {gameOver && <Confetti />}
         <div className="flex relative">
           <div className="text-white-200 rounded-md overflow-hidden">
             {(isBoardFlipped ? board.slice().reverse() : board).map(

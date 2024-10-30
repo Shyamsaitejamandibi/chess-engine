@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 // import MoveSound from '/move.wav';
 // import { Button } from '../components/Button';
 // import { ChessBoard, isPromoting } from '../components/ChessBoard';
@@ -58,13 +58,13 @@ export interface Metadata {
   whitePlayer: Player;
 }
 
-export const Game = ({
-  params: { gameId },
-}: {
-  params: {
+export const Game = (props: {
+  params: Promise<{
     gameId: string;
-  };
+  }>;
 }) => {
+  const params = use(props.params);
+  const { gameId } = params;
   const { socket, user } = useSocket();
   const router = useRouter();
   // Todo move to store/context
@@ -110,10 +110,6 @@ export const Game = ({
             message.payload;
           setPlayer1TimeConsumed(player1TimeConsumed);
           setPlayer2TimeConsumed(player2TimeConsumed);
-          if (userSelectedMoveIndexRef.current !== null) {
-            addMove(move);
-            return;
-          }
           try {
             if (isPromoting(chess, move.from, move.to)) {
               chess.move({
@@ -124,8 +120,8 @@ export const Game = ({
             } else {
               chess.move({ from: move.from, to: move.to });
             }
-
-            // moveAudio.play();
+            setBoard(chess.board());
+            addMove(move);
           } catch (error) {
             console.log("Error", error);
           }
@@ -167,7 +163,7 @@ export const Game = ({
           });
           setPlayer1TimeConsumed(message.payload.player1TimeConsumed);
           setPlayer2TimeConsumed(message.payload.player2TimeConsumed);
-          console.error(message.payload);
+          console.log(message.payload);
           setStarted(true);
 
           message.payload.moves.map((x: Move) => {
@@ -201,7 +197,7 @@ export const Game = ({
         })
       );
     }
-  }, [addMove, chess, gameId, router, socket]);
+  }, [addMove, chess, gameId, router, socket, setBoard]);
 
   useEffect(() => {
     if (started) {

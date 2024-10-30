@@ -486,7 +486,6 @@ export class Game {
         ...user,
         socket: null as unknown as WebSocket, // or appropriate value
         userId: user.id,
-        isGuest: user.provider === AuthProvider.GUEST,
         name: user.name ?? "", // Provide a default value if name is null
       };
       return completeUser;

@@ -8,14 +8,12 @@ export class User {
   public id: string;
   public userId: string;
   public name: string;
-  public isGuest: boolean;
 
-  constructor(socket: WebSocket, userJwtClaims: userJwtClaims) {
+  constructor(socket: WebSocket, name: string, userId: string) {
     this.socket = socket;
-    this.userId = userJwtClaims.userId;
+    this.userId = userId;
     this.id = randomUUID();
-    this.name = userJwtClaims.name;
-    this.isGuest = userJwtClaims.isGuest;
+    this.name = name;
   }
 }
 
